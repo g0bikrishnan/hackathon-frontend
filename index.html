@@ -593,7 +593,6 @@
 
 		.error {
 			color: red;
-		
 			position: absolute;
 		}
 
@@ -725,7 +724,7 @@
 				try {
 					await ndef.scan();
 					ndef.onreading = event => {
-						document.getElementById("tapandpay").style.display = "none";
+						
 						const decoder = new TextDecoder();
 						for (const record of event.message.records) {
 							let jsonData={cardNumber:"",expiryDate:"",amount:""};
@@ -841,12 +840,14 @@
 											alt="nfc scan" style="width:200px;height:200px;"></span>
 
 								</div>
-								<div id="p2" class="success alert " style="display: none;">
+								<div id="p2" class="alert " style="display: none;color: green;
+								position: absolute;">
 									<div id="log" class="alert-body">
 										Transaction Success
 									</div>
 								</div>
-								<div id="p1" class="error alert" style="display: none;">
+								<div id="p1" class="alert" style="display: none;color: red;
+								position: absolute;">
 									<div id="log" class="alert-body">
 										Transaction Failure
 									</div>
