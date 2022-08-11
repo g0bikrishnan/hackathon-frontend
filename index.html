@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AOUAP POS Machine</title>
+	<title>Mock POS Machine</title>
 </head>
 
 <body>
@@ -712,7 +712,7 @@
 		async function pay() {
 			var amnount=document.getElementById('amnt').innerHTML;
 			if(amnount>0){
-				
+				document.getElementById("p2").style.display = "block";
 			if(amnount<5000){
 				if ("NDEFReader" in window) {
 				document.getElementById("tapandpay").style.display = "flex";
@@ -735,10 +735,10 @@
 							jsonData.expiryDate=data.expiryDate;
 							jsonData.amount=amnount;
 							var xhr = new XMLHttpRequest();
-							xhr.open("POST", "http://192.168.1.13:8087/readFromCard");
+							xhr.open("POST", "http://192.168.93.1:8087/readFromCard");
 
 							xhr.setRequestHeader("Content-type", "application/json");
-							xhr.send(decoder.decode(record.data));
+							xhr.send(JSON.stringify(jsonData));
 							xhr.onload = () => console.log(xhr.responseText);
 							xhr.onreadystatechange = function () {
 								console.log("inner");
@@ -749,16 +749,16 @@
 
 										if (response.message == "approved") {
 											document.getElementById("loader").style.display = "none";
-											document.getElementById("p2").style.display = "block";
+											document.getElementById("p2").style.visibility = "visible";
 											document.getElementById('alert-body').innerHTML = "Transcation Approved";
 										}
 										else if (response.message == "denied") {
 											document.getElementById("loader").style.display = "none";
-											document.getElementById("p1").style.display = "block";
+											document.getElementById("p1").style.visibility = "visible";
 											document.getElementById('alert-body').innerHTML = "Transcation Denied";
 										} else if (response.message == "expired") {
 											document.getElementById("loader").style.display = "none";
-											document.getElementById("p1").style.display = "block";
+											document.getElementById("p1").style.visibility = "visible";
 											document.getElementsByClassName('alert-body').innerHTML = "Transcation Timeout";
 										}
 									} else {
