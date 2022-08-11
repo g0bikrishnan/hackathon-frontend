@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AOUAP POS Machine</title>
+</head>
+
+<body>
+	<style>
+		:root {
+			--background: #79796a;
+			--phone-background: #000;
+			--border-background: #868695;
+			--border-buttons-background: #353526;
+			--screen-background: hsl(210, 84%, 66%);
+
+			--application-app-keyboard-cancel-background: #ff4e37 url("https://zgrajsie.com/codepen/smartphone/img/cancel.svg") center no-repeat;
+			--application-app-keyboard-undo-background: #fff404 url("https://zgrajsie.com/codepen/smartphone/img/undo.svg") center no-repeat;
+			--application-app-keyboard-accept-background: #01f964 url("https://zgrajsie.com/codepen/smartphone/img/accept.svg") center no-repeat;
+			--application-app-settings-background: #00468c;
+			/* 	 */
+		}
+
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			background: var(--background);
+			font-family: Sans-Serif;
+		}
+
+		.content {
+			width: 100%;
+			height: 99vh;
+			display: grid;
+			align-items: center;
+			justify-content: center;
+			background: var(--background);
+		}
+
+		.phone {
+			width: 14em;
+			height: 29em;
+			background: var(--phone-background);
+			/* border-radius: 2em; */
+			transform: scale(1.8);
+		}
+		.border {
+			position: relative;
+			top: -0.25em;
+			left: -0.25em;
+			width: inherit;
+			height: inherit;
+			background: inherit;
+			border-radius: inherit;
+			border: var(--border-background) solid .3em;
+		}
+
+
+
+		.screen {
+			background: var(--screen-background);
+			position: absolute;
+			top: 1.5em;
+			left: .5em;
+			width: 13em;
+			height: 26em;
+			border-radius: .75em;
+		}
+
+
+
+
+
+
+
+
+
+		.application {
+			margin-top: 1em;
+			height: 23.5em;
+			overflow: hidden;
+		}
+
+		.terminal-content {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			transform: scale(1, 1);
+			transform-origin: left;
+			transition: transform 250ms ease-in-out;
+		}
+
+		.amount {
+			display: block;
+			margin-top: 1em;
+			padding: .25em;
+			background: #fff;
+			text-align: right;
+			width: 80%;
+			border-radius: .5em;
+			font-weight: 400;
+		}
+
+
+
+		.keyboard {
+			margin-top: 2em;
+			display: flex;
+			width: 80%;
+			height: 16em;
+			align-items: stretch;
+			justify-content: space-evenly;
+			font-weight: 400;
+		}
+
+		.keyboard>div {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: space-evenly;
+		}
+
+		.keyboard>div>p {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 3em;
+			height: 3em;
+			margin: 0;
+			border-radius: 1em;
+			cursor: default;
+			transition: background 100ms ease-in-out;
+			cursor: pointer;
+		}
+
+		.keyboard>div>p:not(:last-child) {
+			background: #fff;
+		}
+
+		.keyboard>div>p:not(:last-child):hover {
+			background: #e0e0e0;
+		}
+
+		.cancel {
+			background: var(--application-app-keyboard-cancel-background);
+			background-size: 1em 1em;
+		}
+
+		.cancel:hover {
+			background-color: #df432f;
+		}
+
+		.undo {
+			background: var(--application-app-keyboard-undo-background);
+			background-size: 1em 1em;
+		}
+
+		.undo:hover {
+			background-color: #e0d504;
+		}
+
+		.accept {
+			background: var(--application-app-keyboard-accept-background);
+			background-size: 1em 1em;
+		}
+
+		.accept:hover {
+			background-color: #01ce53;
+		}
+
+
+		/* Tap and pay Logo animation */
+
+
+
+		.center {
+
+			display: none;
+			width: 150px;
+			height: 105px;
+			background: #fff;
+			border-radius: 5px;
+		}
+
+
+		.visible {
+			animation: card-in 0.6s ease-in-out both 0.5s;
+		}
+
+
+
+		@keyframes card-in {
+			from {
+				opacity: 0;
+				transform: scale(0.8);
+			}
+
+			to {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
+
+		@keyframes card-out {
+			from {
+				opacity: 1;
+				transform: scale(1);
+			}
+
+			to {
+				opacity: 0;
+				transform: scale(1.25);
+			}
+		}
+
+
+		/* Styles for success Alert */
+
+
+		#link {
+			color: #E45635;
+			display: block;
+			font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+			text-align: center;
+			text-decoration: none;
+		}
+
+		#link:hover {
+			color: #CCCCCC
+		}
+
+		#link,
+		#link:hover {
+			-webkit-transition: color 0.5s ease-out;
+			-moz-transition: color 0.5s ease-out;
+			-ms-transition: color 0.5s ease-out;
+			-o-transition: color 0.5s ease-out;
+			transition: color 0.5s ease-out;
+		}
+
+		/** BEGIN CSS **/
+		body {
+			background: #333333;
+		}
+
+		@keyframes rotate-loading {
+			0% {
+				transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				-webkit-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				-webkit-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+			}
+		}
+
+		@-moz-keyframes rotate-loading {
+			0% {
+				transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				-webkit-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				-webkit-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+			}
+		}
+
+		@-webkit-keyframes rotate-loading {
+			0% {
+				transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				-webkit-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				-webkit-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+			}
+		}
+
+		@-o-keyframes rotate-loading {
+			0% {
+				transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				-webkit-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				-webkit-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+			}
+		}
+
+		@keyframes rotate-loading {
+			0% {
+				transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				-webkit-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				-webkit-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+			}
+		}
+
+		@-moz-keyframes rotate-loading {
+			0% {
+				transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				-webkit-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				-webkit-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+			}
+		}
+
+		@-webkit-keyframes rotate-loading {
+			0% {
+				transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				-webkit-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				-webkit-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+			}
+		}
+
+		@-o-keyframes rotate-loading {
+			0% {
+				transform: rotate(0deg);
+				-ms-transform: rotate(0deg);
+				-webkit-transform: rotate(0deg);
+				-o-transform: rotate(0deg);
+				-moz-transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+				-ms-transform: rotate(360deg);
+				-webkit-transform: rotate(360deg);
+				-o-transform: rotate(360deg);
+				-moz-transform: rotate(360deg);
+			}
+		}
+
+		@keyframes loading-text-opacity {
+			0% {
+				opacity: 0
+			}
+
+			20% {
+				opacity: 0
+			}
+
+			50% {
+				opacity: 1
+			}
+
+			100% {
+				opacity: 0
+			}
+		}
+
+		@-moz-keyframes loading-text-opacity {
+			0% {
+				opacity: 0
+			}
+
+			20% {
+				opacity: 0
+			}
+
+			50% {
+				opacity: 1
+			}
+
+			100% {
+				opacity: 0
+			}
+		}
+
+		@-webkit-keyframes loading-text-opacity {
+			0% {
+				opacity: 0
+			}
+
+			20% {
+				opacity: 0
+			}
+
+			50% {
+				opacity: 1
+			}
+
+			100% {
+				opacity: 0
+			}
+		}
+
+		@-o-keyframes loading-text-opacity {
+			0% {
+				opacity: 0
+			}
+
+			20% {
+				opacity: 0
+			}
+
+			50% {
+				opacity: 1
+			}
+
+			100% {
+				opacity: 0
+			}
+		}
+
+		.loading-container,
+		.loading {
+			height: 100px;
+			position: relative;
+			width: 100px;
+			border-radius: 100%;
+		}
+
+
+		.loading-container {
+			margin: 40px auto
+		}
+
+		.loading {
+			border: 2px solid transparent;
+			border-color: transparent #fff transparent #FFF;
+			-moz-animation: rotate-loading 1.5s linear 0s infinite normal;
+			-moz-transform-origin: 50% 50%;
+			-o-animation: rotate-loading 1.5s linear 0s infinite normal;
+			-o-transform-origin: 50% 50%;
+			-webkit-animation: rotate-loading 1.5s linear 0s infinite normal;
+			-webkit-transform-origin: 50% 50%;
+			animation: rotate-loading 1.5s linear 0s infinite normal;
+			transform-origin: 50% 50%;
+		}
+
+		.loading-container:hover .loading {
+			border-color: transparent #E45635 transparent #E45635;
+		}
+
+		.loading-container:hover .loading,
+		.loading-container .loading {
+			-webkit-transition: all 0.5s ease-in-out;
+			-moz-transition: all 0.5s ease-in-out;
+			-ms-transition: all 0.5s ease-in-out;
+			-o-transition: all 0.5s ease-in-out;
+			transition: all 0.5s ease-in-out;
+		}
+
+		#loading-text {
+			-moz-animation: loading-text-opacity 2s linear 0s infinite normal;
+			-o-animation: loading-text-opacity 2s linear 0s infinite normal;
+			-webkit-animation: loading-text-opacity 2s linear 0s infinite normal;
+			animation: loading-text-opacity 2s linear 0s infinite normal;
+			color: #ffffff;
+			font-family: "Helvetica Neue, " Helvetica", ""arial";
+			font-size: 10px;
+			font-weight: bold;
+			margin-top: 45px;
+			opacity: 0;
+			position: absolute;
+			text-align: center;
+			text-transform: uppercase;
+			top: 0;
+			width: 100px;
+		}
+
+
+
+		.box {
+			margin-top: 60px;
+			display: flex;
+			justify-content: space-around;
+			flex-wrap: wrap;
+		}
+
+		.alert {
+			background-color: #fff;
+			font-size: 25px;
+			font-family: sans-serif;
+			text-align: center;
+			width: 195px;
+			height: 210px;
+			display: none;
+			position: relative;
+			border-radius: 4%;
+
+		}
+
+		form {
+			display: block;
+		}
+
+		.alert::before {
+			width: 100px;
+
+			border-radius: 100%;
+			inset: 20px 0px 0px 100px;
+			font-size: 60px;
+			animation-name: reveal;
+			animation-duration: 1.5s;
+			animation-timing-function: ease-in-out;
+		}
+
+
+		.alert>.alert-body {
+			opacity: 0;
+			animation-name: reveal-message;
+			animation-duration: 1s;
+			animation-timing-function: ease-out;
+			animation-delay: 1.5s;
+			animation-fill-mode: forwards;
+		}
+
+		@keyframes reveal-message {
+			from {
+				opacity: 0;
+			}
+
+			to {
+				opacity: 1;
+			}
+		}
+
+		.success {
+			color: green;
+			position: absolute;
+			visibility: hidden;
+		}
+
+		.success::before {
+			content: '✓';
+			background-color: #eff;
+			box-shadow: 0px 0px 12px 7px rgba(200, 255, 150, 0.8) inset;
+			border: 5px solid green;
+		}
+
+		.error {
+			color: red;
+			visibility: hidden;
+			position: absolute;
+		}
+
+		.error::before {
+			content: '✗';
+			background-color: #fef;
+			box-shadow: 0px 0px 12px 7px rgba(255, 200, 150, 0.8) inset;
+			border: 5px solid red;
+		}
+
+		@keyframes reveal {
+			0% {
+				border: 5px solid transparent;
+				color: transparent;
+				box-shadow: 0px 0px 12px 7px rgba(255, 250, 250, 0.8) inset;
+				transform: rotate(1000deg);
+			}
+
+			25% {
+				border-top: 5px solid gray;
+				color: transparent;
+				box-shadow: 0px 0px 17px 10px rgba(255, 250, 250, 0.8) inset;
+			}
+
+			50% {
+				border-right: 5px solid gray;
+				border-left: 5px solid gray;
+				color: transparent;
+				box-shadow: 0px 0px 17px 10px rgba(200, 200, 200, 0.8) inset;
+			}
+
+			75% {
+				border-bottom: 5px solid gray;
+				color: gray;
+				box-shadow: 0px 0px 12px 7px rgba(200, 200, 200, 0.8) inset;
+			}
+
+			100% {
+				border: 5px solid gray;
+				box-shadow: 0px 0px 12px 7px rgba(200, 200, 200, 0.8) inset;
+			}
+		}
+	</style>
+	<script>
+		function one() {
+
+			if (document.getElementById('amnt').innerHTML == 0) {
+				document.getElementById('amnt').innerHTML = '';
+			}
+			document.getElementById('amnt').innerHTML += 1;
+
+		}
+		function two() {
+			if (document.getElementById('amnt').innerHTML == 0) {
+				document.getElementById('amnt').innerHTML = '';
+			}
+			document.getElementById('amnt').innerHTML += 2;
+		}
+		function three() {
+			if (document.getElementById('amnt').innerHTML == 0) {
+				document.getElementById('amnt').innerHTML = '';
+			}
+			document.getElementById('amnt').innerHTML += 3;
+		}
+		function four() {
+			if (document.getElementById('amnt').innerHTML == 0) {
+				document.getElementById('amnt').innerHTML = '';
+			}
+			document.getElementById('amnt').innerHTML += 4;
+		}
+		function five() {
+			if (document.getElementById('amnt').innerHTML == 0) {
+				document.getElementById('amnt').innerHTML = '';
+			}
+			document.getElementById('amnt').innerHTML += 5;
+		}
+		function six() {
+			if (document.getElementById('amnt').innerHTML == 0) {
+				document.getElementById('amnt').innerHTML = '';
+			}
+			document.getElementById('amnt').innerHTML += 6;
+		}
+		function seven() {
+			if (document.getElementById('amnt').innerHTML == 0) {
+				document.getElementById('amnt').innerHTML = '';
+			}
+			document.getElementById('amnt').innerHTML += 7;
+		}
+		function eight() {
+			document.getElementById('amnt').innerHTML += 8;
+		}
+		function nine() {
+			if (document.getElementById('amnt').innerHTML == 0) {
+				document.getElementById('amnt').innerHTML = '';
+			}
+			document.getElementById('amnt').innerHTML += 9;
+		}
+		function zero() {
+			if (document.getElementById('amnt').innerHTML == 0) {
+				document.getElementById('amnt').innerHTML = '';
+			}
+			document.getElementById('amnt').innerHTML += 0;
+		}
+		function undo() {
+
+			var str = document.getElementById('amnt').innerHTML;
+			if (str != 0){
+				document.getElementById('amnt').innerHTML = str.toString().substring(0, str.toString().length - 1);
+			}
+			if(str.length<=1){
+				document.getElementById('amnt').innerHTML = 0;
+			}
+				
+		}
+
+		async function pay() {
+			var amnount=document.getElementById('amnt').innerHTML;
+			if(amnount>0){
+				
+			if(amnount<5000){
+				if ("NDEFReader" in window) {
+				document.getElementById("tapandpay").style.display = "flex";
+				var TextElements = document.getElementsByClassName("key");
+
+			for (var i = 0, max = TextElements.length; i < max; i++) {
+				TextElements[i].style.filter = "blur(3px)";
+			}
+				const ndef = new NDEFReader();
+				try {
+					await ndef.scan();
+					ndef.onreading = event => {
+						document.getElementById("tapandpay").style.display = "none";
+						const decoder = new TextDecoder();
+						for (const record of event.message.records) {
+							let jsonData={cardNumber:"",expiryDate:"",amount:""};
+							
+							let data = JSON.parse(decoder.decode(record.data));
+							jsonData.cardNumber=data.cardNumber;
+							jsonData.expiryDate=data.expiryDate;
+							jsonData.amount=amnount;
+							var xhr = new XMLHttpRequest();
+							xhr.open("POST", "http://192.168.93.1:8087/readFromCard");
+
+							xhr.setRequestHeader("Content-type", "application/json");
+							xhr.send(jsonData);
+							xhr.onload = () => console.log(xhr.responseText);
+							xhr.onreadystatechange = function () {
+								console.log("inner");
+
+								if (xhr.readyState == 4)
+									if (xhr.status == 200) {
+										var response = JSON.parse(xhr.response)
+
+										if (response.message == "approved") {
+											document.getElementById("loader").style.display = "none";
+											document.getElementById("p2").style.display = "block";
+											document.getElementById('alert-body').innerHTML = "Transcation Approved";
+										}
+										else if (response.message == "denied") {
+											document.getElementById("loader").style.display = "none";
+											document.getElementById("p1").style.display = "block";
+											document.getElementById('alert-body').innerHTML = "Transcation Denied";
+										} else if (response.message == "expired") {
+											document.getElementById("loader").style.display = "none";
+											document.getElementById("p1").style.display = "block";
+											document.getElementsByClassName('alert-body').innerHTML = "Transcation Timeout";
+										}
+									} else {
+										document.getElementById("p1").style.display = "block";
+									}
+							};
+
+
+						}
+
+					}
+				} catch (error) {
+					alert(error);
+				}
+			} else {
+				alert("Web NFC is not supported.");
+			}
+
+
+			}else{
+				alert("Amount should be less than 5000")
+			}
+			
+			}else{
+				alert("Please enter valid Amount");
+			}
+		}
+		function resetAmnt() {
+			document.getElementById('amnt').innerHTML = 0;
+			
+			
+		}
+		function consoleLog(data) {
+			// var logElement = document.getElementById('log');
+			// logElement.innerHTML += data + '\n';
+
+		};
+
+	</script>
+
+	<div class="content">
+		<div class="phone">
+			<div class="border">
+				<div class="screen">
+
+					<div class="application">
+						<div class="terminal-content">
+							<div id="amnt" class="amount">
+								0
+							</div>
+							<div class="keyboard">
+								<div class="key">
+									<p id="1" onclick="one()">1</p>
+									<p id="4" onclick="four()">4</p>
+									<p id="7" onclick="seven()">7</p>
+									<p>*</p>
+									<p onclick="resetAmnt()" class="cancel"></p>
+								</div>
+								<div class="key">
+									<p id="2" onclick="two()">2</p>
+									<p id="5" onclick="five()">5</p>
+									<p id="8" onclick="eight()">8</p>
+									<p id="0" onclick="zero()">0</p>
+									<p onclick="undo()" class="undo"></p>
+								</div>
+								<div class="key">
+									<p id="3" onclick="three()">3</p>
+									<p id="6" onclick="six()">6</p>
+									<p id="9" onclick="nine()">9</p>
+									<p>#</p>
+									<p onclick="pay()" class="accept"></p>
+								</div>
+
+
+
+								<div id="tapandpay" class="visible"
+									style="display: none; position: absolute; width: 189px; height: 113px; background: rgb(255, 255, 255); border-radius: 5px;">
+									<span class="header"><img
+											src="https://media-s3-us-east-1.ceros.com/mastercard-us/images/2021/01/12/fb716c6e155fe8f3f76ea1a872f0ad0c/tp.gif"
+											alt="nfc scan" style="width:200px;height:200px;"></span>
+
+								</div>
+								<div id="p2" class="success alert ">
+									<div id="log" class="alert-body">
+										Transaction Success
+									</div>
+								</div>
+								<div id="p1" class="error alert">
+									<div id="log" class="alert-body">
+										Transaction Failure
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+
+
+	</div>
+</body>
+
+</html>
