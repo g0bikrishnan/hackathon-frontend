@@ -723,7 +723,7 @@
 				try {
 					await ndef.scan();
 					ndef.onreading = event => {
-						
+						document.getElementById("tapandpay").style.display = "none";
 						const decoder = new TextDecoder();
 						for (const record of event.message.records) {
 							let jsonData={cardNumber:"",expiryDate:"",amount:""};
@@ -747,16 +747,16 @@
 
 										if (response.message == "approved") {
 									
-											document.getElementById("p2").style.display = "visible";
+											document.getElementById("p2").style.display = "block";
 											document.getElementById('alert-body').innerHTML = "Transcation Approved";
 										}
 										else if (response.message == "denied") {
 							
-											document.getElementById("p1").style.display = "visible";
+											document.getElementById("p1").style.display = "block";
 											document.getElementById('alert-body').innerHTML = "Transcation Denied";
 										} else if (response.message == "expired") {
 									
-											document.getElementById("p1").style.display = "visible";
+											document.getElementById("p1").style.display = "block";
 											document.getElementsByClassName('alert-body').innerHTML = "Transcation Timeout";
 										}
 									} else {
