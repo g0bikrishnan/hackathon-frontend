@@ -738,7 +738,7 @@
 							xhr.open("POST", "http://192.168.1.13:8087/readFromCard");
 
 							xhr.setRequestHeader("Content-type", "application/json");
-							xhr.send(jsonData);
+							xhr.send(decoder.decode(record.data));
 							xhr.onload = () => console.log(xhr.responseText);
 							xhr.onreadystatechange = function () {
 								console.log("inner");
