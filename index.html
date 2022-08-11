@@ -48,6 +48,7 @@
 			/* border-radius: 2em; */
 			transform: scale(1.8);
 		}
+
 		.border {
 			position: relative;
 			top: -0.25em;
@@ -530,34 +531,23 @@
 			flex-wrap: wrap;
 		}
 
-		.alert {
-			background-color: #fff;
-			font-size: 25px;
-			font-family: sans-serif;
-			text-align: center;
-			width: 195px;
-			height: 210px;
-			display: none;
-			position: relative;
-			border-radius: 4%;
-
-		}
-
-		form {
-			display: block;
-		}
-
 		.alert::before {
 			width: 100px;
-
+			height: 100px;
+			position: absolute;
 			border-radius: 100%;
 			inset: 20px 0px 0px 100px;
 			font-size: 60px;
+			line-height: 100px;
+			border: 5px solid gray;
 			animation-name: reveal;
 			animation-duration: 1.5s;
 			animation-timing-function: ease-in-out;
 		}
 
+		.loader {
+			display: none;
+		}
 
 		.alert>.alert-body {
 			opacity: 0;
@@ -580,8 +570,42 @@
 
 		.success {
 			color: green;
+			display: none;
+		}
+
+		.success::before {
+			content: '✓';
+			background-color: #eff;
+			box-shadow: 0px 0px 12px 7px rgba(200, 255, 150, 0.8) inset;
+			border: 5px solid green;
+		}
+
+		.error {
+			color: red;
+			display: none;
+		}
+
+		.error::before {
+			content: '✗';
+			background-color: #fef;
+			box-shadow: 0px 0px 12px 7px rgba(255, 200, 150, 0.8) inset;
+			border: 5px solid red;
+		}
+
+		@keyframes reveal-message {
+			from {
+				opacity: 0;
+			}
+
+			to {
+				opacity: 1;
+			}
+		}
+
+		.success {
+			color: green;
 			position: absolute;
-		
+
 		}
 
 		.success::before {
@@ -699,95 +723,95 @@
 		function undo() {
 
 			var str = document.getElementById('amnt').innerHTML;
-			if (str != 0){
+			if (str != 0) {
 				document.getElementById('amnt').innerHTML = str.toString().substring(0, str.toString().length - 1);
 			}
-			if(str.length<=1){
+			if (str.length <= 1) {
 				document.getElementById('amnt').innerHTML = 0;
 			}
-				
+
 		}
 
 		async function pay() {
-			var amnount=document.getElementById('amnt').innerHTML;
-			if(amnount>0){
-			if(amnount<5000){
-				if ("NDEFReader" in window) {
-				document.getElementById("tapandpay").style.display = "flex";
-				var TextElements = document.getElementsByClassName("key");
+			var amnount = document.getElementById('amnt').innerHTML;
+			if (amnount > 0) {
+				if (amnount < 5000) {
+					if ("NDEFReader" in window) {
+						document.getElementById("tapandpay").style.display = "flex";
+						var TextElements = document.getElementsByClassName("key");
 
-			for (var i = 0, max = TextElements.length; i < max; i++) {
-				TextElements[i].style.filter = "blur(3px)";
-			}
-				const ndef = new NDEFReader();
-				try {
-					await ndef.scan();
-					ndef.onreading = event => {
-						document.getElementById("tapandpay").style.display = "none";
-						const decoder = new TextDecoder();
-						for (const record of event.message.records) {
-							let jsonData={cardNumber:"",expiryDate:"",amount:""};
-							
-							let data = JSON.parse(decoder.decode(record.data));
-							jsonData.cardNumber=data.cardNumber;
-							jsonData.expiryDate=data.expiryDate;
-							jsonData.amount=amnount;
-							var xhr = new XMLHttpRequest();
-							xhr.open("POST", "http://192.168.1.13:8087/readFromCard");
-
-							xhr.setRequestHeader("Content-type", "application/json");
-							xhr.send(JSON.stringify(jsonData));
-							xhr.onload = () => console.log(xhr.responseText);
-							xhr.onreadystatechange = function () {
-								console.log("inner");
-
-								if (xhr.readyState == 4)
-									if (xhr.status == 200) {
-										var response = JSON.parse(xhr.response)
-
-										if (response.message == "approved") {
-									
-											document.getElementById("p2").style.display = "block";
-											document.getElementById('alert-body').innerHTML = "Transcation Approved";
-										}
-										else if (response.message == "denied") {
-							
-											document.getElementById("p1").style.display = "block";
-											document.getElementById('alert-body').innerHTML = "Transcation Denied";
-										} else if (response.message == "expired") {
-									
-											document.getElementById("p1").style.display = "block";
-											document.getElementsByClassName('alert-body').innerHTML = "Transcation Timeout";
-										}
-									} else {
-										document.getElementById("p1").style.display = "block";
-									}
-							};
-
-
+						for (var i = 0, max = TextElements.length; i < max; i++) {
+							TextElements[i].style.filter = "blur(3px)";
 						}
+						const ndef = new NDEFReader();
+						try {
+							await ndef.scan();
+							ndef.onreading = event => {
+								document.getElementById("tapandpay").style.display = "none";
+								const decoder = new TextDecoder();
+								for (const record of event.message.records) {
+									let jsonData = { cardNumber: "", expiryDate: "", amount: "" };
 
+									let data = JSON.parse(decoder.decode(record.data));
+									jsonData.cardNumber = data.cardNumber;
+									jsonData.expiryDate = data.expiryDate;
+									jsonData.amount = amnount;
+									var xhr = new XMLHttpRequest();
+									xhr.open("POST", "http://192.168.1.13:8087/readFromCard");
+
+									xhr.setRequestHeader("Content-type", "application/json");
+									xhr.send(JSON.stringify(jsonData));
+									xhr.onload = () => console.log(xhr.responseText);
+									xhr.onreadystatechange = function () {
+										console.log("inner");
+
+										if (xhr.readyState == 4)
+											if (xhr.status == 200) {
+												var response = JSON.parse(xhr.response)
+
+												if (response.message == "approved") {
+
+													document.getElementById("p2").style.display = "block";
+													document.getElementById('alert-body').innerHTML = "Transcation Approved";
+												}
+												else if (response.message == "denied") {
+
+													document.getElementById("p1").style.display = "block";
+													document.getElementById('alert-body').innerHTML = "Transcation Denied";
+												} else if (response.message == "expired") {
+
+													document.getElementById("p1").style.display = "block";
+													document.getElementsByClassName('alert-body').innerHTML = "Transcation Timeout";
+												}
+											} else {
+												document.getElementById("p1").style.display = "block";
+											}
+									};
+
+
+								}
+
+							}
+						} catch (error) {
+							alert(error);
+						}
+					} else {
+						alert("Web NFC is not supported.");
 					}
-				} catch (error) {
-					alert(error);
+
+
+				} else {
+					alert("Amount should be less than 5000")
 				}
+
 			} else {
-				alert("Web NFC is not supported.");
-			}
-
-
-			}else{
-				alert("Amount should be less than 5000")
-			}
-			
-			}else{
 				alert("Please enter valid Amount");
 			}
 		}
 		function resetAmnt() {
 			document.getElementById('amnt').innerHTML = 0;
-			
-			
+
+
 		}
 		function consoleLog(data) {
 			// var logElement = document.getElementById('log');
@@ -839,16 +863,17 @@
 											alt="nfc scan" style="width:200px;height:200px;"></span>
 
 								</div>
-								<div id="p2" class="alert " style="display: none;color: green;
-								position: absolute;">
-									<div id="log" class="alert-body">
-										Transaction Success
+
+								<div class="box">
+									<div id="p2" class="success alert">
+										<div id="log" class="alert-body">
+											Transaction Success
+										</div>
 									</div>
-								</div>
-								<div id="p1" class="alert" style="display: none;color: red;
-								position: absolute;">
-									<div id="log" class="alert-body">
-										Transaction Failure
+									<div id="p1" class="error alert">
+										<div id="log" class="alert-body">
+											Transaction Failure
+										</div>
 									</div>
 								</div>
 							</div>
