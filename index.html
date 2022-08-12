@@ -737,7 +737,7 @@ visibility: hidden;
 									jsonData.expiryDate = data.expiryDate;
 									jsonData.amount = amnount;
 									var xhr = new XMLHttpRequest();
-									xhr.open("POST", "http://192.168.1.13:8087/readFromCard");
+									xhr.open("POST", "http://192.168.93.1:8087/readFromCard");
 
 									xhr.setRequestHeader("Content-type", "application/json");
 									xhr.send(JSON.stringify(jsonData));
